@@ -64,3 +64,61 @@ const images = [
       },
     ];
     
+    const galleryList = document.querySelector('ul.gallery');
+    galleryList.addEventListener('click', getPhoto);
+
+    const instance = basicLightbox.create(
+  ` <div class="modal">
+  <img class="modal-image" src="" alt="" />
+    </div>
+   `,
+  {
+    onShow: () => {
+      document.addEventListener('keydown', onEscClick);
+    },
+    onClose: () => {
+      document.removeEventListener('keydown', onEscClick);
+    },
+  }
+);
+
+const markup = images
+  .map(
+    ({ preview, original, description }) =>
+      `<li class="gallery-item">
+            <a class="gallery-link" href=${original}>
+                <img class="gallery-image"
+                src=${preview}
+                data-source=${original}
+                alt='${description}' />
+            </a>
+        </li>  `
+  )
+  .join('');
+
+galleryList.insertAdjacentHTML('beforeend', markup);
+
+function getPhoto(e) {
+  const {
+    dataset: { source },
+    alt,
+    nodeName,
+  } = e.target;
+
+  e.preventDefault();
+
+  if (nodeName !== 'IMG') {
+    return;
+  }
+
+  const modalImage = instance.element().querySelector('img');
+  modalImage.src = source;
+  modalImage.alt = alt;
+  instance.show();
+}
+
+function onEscClick({ key }) {
+  if (key === 'Escape') {
+    instance.close();
+  }
+}
